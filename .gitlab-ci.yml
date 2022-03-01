@@ -1,0 +1,51 @@
+stages:
+    - build
+    - test-pa1
+    - test-pa2
+    - test-pa3
+    - test-pa4
+
+build-job:
+    stage: build
+    tags:
+        - linux
+    script:
+        - mkdir build
+        - cd build
+        - cmake .. -G "Ninja"
+        - ninja
+    artifacts: 
+        paths:
+            - build
+
+test-pa1-job:
+    stage: test-pa1
+    tags:
+        - linux
+    script:
+        - cd tests
+        - python3 ./duipai.py --pa 1
+
+test-pa2-job:
+    stage: test-pa2
+    tags:
+        - linux
+    script:
+        - cd tests
+        - python3 ./duipai.py --pa 2
+
+test-pa3-job:
+    stage: test-pa3
+    tags:
+        - linux
+    script:
+        - cd tests
+        - python3 ./duipai.py --pa 3
+
+test-pa4-job:
+    stage: test-pa4
+    tags:
+        - linux
+    script:
+        - cd tests
+        - python3 ./duipai.py --pa 4
