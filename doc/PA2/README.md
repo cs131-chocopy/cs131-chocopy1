@@ -20,7 +20,7 @@
 
 <!-- /TOC -->
 
-在本次实验中需要使用`Visitor Pattern`完成对程序的 Declaration Analysis 和 Type Checker Analysis。 Declaration的结果以 Symbol table 的形式传给Type
+在本次实验是个人项目。本实验中需要使用`Visitor Pattern`完成对程序的 Declaration Analysis 和 Type Checker Analysis。 Declaration的结果以 Symbol table 的形式传给Type
 Checker继续检查。从而使`Chocopy`的LSP没有语义错误。
 
 ## 0. 基础知识
