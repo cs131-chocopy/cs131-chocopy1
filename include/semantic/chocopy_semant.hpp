@@ -258,8 +258,73 @@ public:
     void visit(parser::VarDef &varDef) override;
     void visit(parser::Program &program) override;
 
-    explicit DeclarationAnalyzer(vector<parser::Err *> *errors);
+    explicit DeclarationAnalyzer(vector<parser::Err *> *errors) {
+        this->errors = errors;
+        auto *foo = new ClassDefType("none", "object");
+        FunctionDefType *bar;
+        auto *init = new FunctionDefType();
 
+        /** Setting up predefined classes and functions, they can not be abstract as class initializer because they have
+         * minor difference.
+         * no matter which class type, they should be appended with __init__ */
+        init->func_name = "__init__";
+        init->return_type = new ClassValueType("object");
+        init->params = new std::vector<SymbolType *>();
+        init->params->emplace_back(new ClassValueType("object"));
+        foo->current_scope = new SymbolTable();
+        foo->current_scope->tab->insert({"__init__", init});
+        sym->tab->insert({"object", foo});
+
+        foo = new ClassDefType("none", "str");
+        init = new FunctionDefType();
+        init->func_name = "__init__";
+        init->return_type = new ClassValueType("object");
+        init->params = new std::vector<SymbolType *>();
+        init->params->emplace_back(new ClassValueType("str"));
+        foo->current_scope = new SymbolTable();
+        foo->current_scope->tab->insert({"__init__", init});
+        sym->tab->insert({"str", foo});
+
+        foo = new ClassDefType("none", "int");
+        init = new FunctionDefType();
+        init->func_name = "__init__";
+        init->return_type = new ClassValueType("int");
+        init->params = new std::vector<SymbolType *>();
+        init->params->emplace_back(new ClassValueType("str"));
+        foo->current_scope = new SymbolTable();
+        foo->current_scope->tab->insert({"__init__", init});
+        sym->tab->insert({"int", foo});
+
+        foo = new ClassDefType("none", "bool");
+        init = new FunctionDefType();
+        init->func_name = "__init__";
+        init->return_type = new ClassValueType("bool");
+        init->params = new std::vector<SymbolType *>();
+        init->params->emplace_back(new ClassValueType("str"));
+        foo->current_scope = new SymbolTable();
+        foo->current_scope->tab->insert({"__init__", init});
+        sym->tab->insert({"bool", foo});
+
+        bar = new FunctionDefType();
+        bar->func_name = "len";
+        bar->return_type = new ClassValueType("int");
+        bar->params = new std::vector<SymbolType *>();
+        bar->params->emplace_back(new ClassValueType("object"));
+        sym->tab->insert({"len", bar});
+
+        bar = new FunctionDefType();
+        bar->func_name = "print";
+        bar->return_type = new ClassValueType("<None>");
+        bar->params = new std::vector<SymbolType *>();
+        bar->params->emplace_back(new ClassValueType("object"));
+        sym->tab->insert({"print", bar});
+
+        bar = new FunctionDefType();
+        bar->func_name = "input";
+        bar->return_type = new ClassValueType("str");
+        bar->params = new std::vector<SymbolType *>();
+        sym->tab->insert({"input", bar});
+    }
     SymbolTable *getGlobals() { return sym; }
 
     /** Collector for errors. */
