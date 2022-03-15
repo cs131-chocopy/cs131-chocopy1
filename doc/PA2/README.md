@@ -11,9 +11,13 @@
       - [0.1.4 Class变量检查](#014-class变量检查)
   - [0.2 Type Checker 检查](#02-type-checker-检查)
     - [0.2.1 类型语义](#021-类型语义)
+  - [0.3 错误检测](#03-错误检测)
+    - [0.3.1 语义检测](#031-语义检测)
+    - [0.3.3 类型检测](#033-类型检测)
   - [1. 实验要求](#1-实验要求)
-    - [主要工作](#主要工作)
-    - [提示](#提示)
+    - [1.0.1 主要工作](#101-主要工作)
+    - [1.0.2 提示](#102-提示)
+      - [1.0.2.1 注意两者的区别](#1021-注意两者的区别)
     - [1.1 目录结构](#11-目录结构)
     - [1.2 Bonus](#12-bonus)
     - [1.2 编译、运行和验证](#12-编译运行和验证)
@@ -45,14 +49,33 @@ Declaration 检查是一个申明作用域环境的检查，在python中的变�
 ```python
 x:int = 0
 def f():
-    x = 1
+    x = 1 # 需要在内部声明 global x 才能获得外部变量。
     print(x)
 ```
 #### 0.1.2 for/while变量检查
 对于for/while循环，在循环体内部定义的变量，在循环体内部可以访问，但是不能访问循环体外部的变量。in 关键字可以用来声明一个循环变量。in 前的循环变量可以与符号表的变量重名，在循环内是c++ rewrite的语义。
 
 ```python
-
+def baz(self:"bar", xx: [int]) -> str:
+    global count
+    x:int = 0
+    y:int = 1
+    def qux(y: int) -> object:
+        nonlocal x
+        if x > y:
+            x = -1
+    for x in xx: # 此处的 x 在循环内部对外部变量无效
+        self.p = x == 2
+    qux(0) # Yay! ChocoPy
+    count = count + 1
+    while x <= 0:
+        if self.p:
+            xx[0] = xx[1]
+            self.p = not self.p
+            x = x + 1
+        elif foo("Long"[0]) == 1:
+            self.p = self is None
+    return "Nope"
 ```
 
 #### 0.1.3 函数内变量检查
@@ -64,15 +87,15 @@ x:int = 0
 def crunch(zz:[[int]]) -> object:
     z:[int] = None
     global x
-    def make_z() -> object: # 嵌套函数 z为左值未定义，zz为调用右值，直接访问
+    def make_z() -> object: 
         # 需要添加 nonlocal z 若没有此行需要报错
-        for z in zz:
+        for z in zz: # 嵌套函数 z为左值未定义，zz为调用右值，直接访问
             pass # Set z to last element in zz
     make_z()
     for x in z:
         pass # Set x to last element in z
 crunch([[1,2],[2,3],[4,5],[6,7]])
-print(x) # 嵌套内部的变量修改在外部能看到 类似 c++ [&] lambda 语义
+print(x) # 嵌套内部的变量修改在外部能看到 类似 c++ [&] lambda Semantic
 ```
 
 #### 0.1.4 Class变量检查
@@ -82,52 +105,131 @@ print(x) # 嵌套内部的变量修改在外部能看到 类似 c++ [&] lambda �
 
 ### 0.2.1 类型语义
 
-
+## 0.3 错误检测
+语义分析阶段会检测两种类型的错误：语义错误和类型检查错误。语义错误是对第5.2节中所列语义规则的违反。类型检查错误是对ChocoPy语言参考手册中所列类型规则的违反。如果输入的程序包含语义错误，那么语义分析阶段的输出预计将是一个语义错误信息的列表，以及它们的来源位置。只有在没有语义错误的情况下才会报告类型检查错误。如所述，类型检查错误与类型化的AST一起被在线报告。
+### 0.3.1 语义检测
+### 0.3.3 类型检测
 
 ## 1. 实验要求
 
-本实验的输出遵循的是类[lsp](https://github.com/MaskRay/ccls/blob/master/src/lsp.hh)
-protocol，如你们在web上测试的情况可知，这种json的传输协议很适合作为前后端现实的交互接口，VSCode等IDE也使用相关protocol进行前端高亮。
+本实验的输出可以实现对语义检查的要求，建立在语法没有错误的基础上，同样可以输出高亮在IDE中。
 
-本次实验需要各位同学根据`ChocoPy`的语义补全[chocopy_semant.y](./src/semantic/chocopy_semant.cpp)
-文件，完成完整的语法分析器，能够输出识别出的`token`，`type` ,`line_start(刚出现的行数)`，`pos_start(该行开始位置)`，`line_end(结束的行数)`, `pos_end(结束的位置,不包含)`
-。如：
+本次实验需要各位同学根据`ChocoPy`的语义补全[chocopy_semant.cpp](./src/semantic/chocopy_semant.cpp)
+文件，完成完整的语法分析器，能够输出识别出语义错误的位置。
 
-### 主要工作
+### 1.0.1 主要工作
 
 1. 了解 `visitor` 模式基础知识和理解 ChocoPy 语义（重在了解如何在 `visitor` 模式下）
-2. 阅读 `./src/parser/chocopy_ast.cpp`以及 `./src/semantic/chocopy_semant.cpp`（重在理解分析树的使用）
+2. 阅读 `./src/semantic/chocopy_ast.cpp`以及 `./src/semantic/chocopy_semant.cpp`（重在理解分析树的使用）
 3. 了解 `./src/semantic/chocopy_semant.cpp` 中的语义检查，并完成语义检查
 4. 补全 `./src/semantic/chocopy_semant.cpp` 文件，以及如果你需要其他改写的代码可以自行改写。
 
-### 提示
+### 1.0.2 提示
 
 文本输入：
 
 ```c
- a: int = 1
+a: int = 1
 ```
 
 则对应语义检查结果应为：
 
-```shell
-
+```json
+{
+  "kind" : "Program",
+  "location" : [ 1, 1, 1, 11 ],
+  "declarations" : [ {
+    "kind" : "VarDef",
+    "location" : [ 1, 1, 1, 10 ],
+    "var" : {
+      "kind" : "TypedVar",
+      "location" : [ 1, 1, 1, 6 ],
+      "identifier" : {
+        "kind" : "Identifier",
+        "location" : [ 1, 1, 1, 1 ],
+        "name" : "a"
+      },
+      "type" : {
+        "kind" : "ClassType",
+        "location" : [ 1, 4, 1, 6 ],
+        "className" : "int"
+      }
+    },
+    "value" : {
+      "kind" : "IntegerLiteral",
+      "location" : [ 1, 10, 1, 10 ],
+      "value" : 1
+    }
+  } ],
+  "statements" : [ ],
+  "errors" : {
+    "errors" : [ ],
+    "kind" : "Errors",
+    "location" : [ 0, 0, 0, 0 ]
+  }
+}
 ```
 
 对语义的抽象语法树输出文件如下，注意Type Error与Declaration Error输出位置的区别。
 
 ```json
-
+{
+  "kind" : "Program",
+  "location" : [ 1, 1, 1, 11 ],
+  "declarations" : [ {
+    "kind" : "VarDef",
+    "location" : [ 1, 1, 1, 10 ],
+    "var" : {
+      "kind" : "TypedVar",
+      "location" : [ 1, 1, 1, 6 ],
+      "identifier" : {
+        "kind" : "Identifier",
+        "location" : [ 1, 1, 1, 1 ],
+        "name" : "a"
+      },
+      "type" : {
+        "kind" : "ClassType",
+        "location" : [ 1, 4, 1, 6 ],
+        "className" : "int"
+      }
+    },
+    "value" : {
+      "kind" : "IntegerLiteral",
+      "location" : [ 1, 10, 1, 10 ],
+      "inferredType" : {
+        "kind" : "ClassValueType",
+        "className" : "int"
+      },
+      "value" : 1
+    }
+  } ],
+  "statements" : [ ],
+  "errors" : {
+    "errors" : [ ],
+    "kind" : "Errors",
+    "location" : [ 0, 0, 0, 0 ]
+  }
+}
 ```
 
-如果有语法错误，对应的errors为`CompilerError`且`syntax=true`。对语法接收的errors体现为`Error`
-，检测程序不会检查错误信息与个数，所以不需要考虑错误的贪心信息，可以找到一个不可接收的程序直接报错返回。
+#### 1.0.2.1 注意两者的区别
 
-**具体的需识别token参考[chocopy.y](./src/parser/chocopy.y)，需要实现的抽象语法树参考[chocopy_parse.hpp](./include/parser/chocopy_parse.hpp)**
+1. 添加了新的对象类型**ValueType**、**ClassValueType**、**ListValueType**。这些将被用来存储类型检查后推断出的程序表达式的类型信息。注意，这些类型几乎与**TypeAnnotation**和它的两个子类型完全相似。
+  ![extend_node](./extend_node.png)
+  **TypeAnnotation**和**ValueType**之间的区别在于，后者没有扩展Node；因此，ValueType对象没有位置属性。这应该是有道理的，因为在语义分析期间分配的类型实际上并不存在于源代码中。
+2. 类型Expr有一个新的属性：inferredType，它可以是null。在分析器产生的AST中，这个属性对每个表达式都是空的。语义分析为每个可以求值的程序表达式推断类型。具体来说，推断类型（inferredType）属性只对以下情况保持空。
+   1. 直接出现在**FuncDef**、**ClassDef**、**TypedVar**、**GlobalDecl**、**NonlocalDecl**、**VarAssignExpr**、**VarAssignStmt**、**MemberExpr**、**ForStmt**或**CallExpr**属性中的标识符对象
+   2. 紧接着**MethodCallExpr**、**MemberAssignExpr**或**MemberAssignStmt**中包含的**MemberExpr**
+   3. 紧接着 **IndexAssignExpr**或 **IndexAssignStmt**中包含的 **IndexExpr**。注意，空值属性在JSON表示中被简单省略是可以接受的。
+3. 如果有语法错误，对应的errors为`CompilerError`且`syntax=true`。对语法接收的errors体现为`Error`，检测程序不会检查错误信息与个数，所以不需要考虑错误的贪心信息，可以找到一个不可接收的程序直接报错返回。
+   1. Node种类有一个新的属性：**typeError**。在解析器产生的AST中，这个属性对每个节点都是空的。如果在对一个节点进行类型检查时出现了错误，那么该节点的**typeError**将为非空。对于一个类型良好的ChocoPy程序来说，在语义分析阶段的输出中，每个节点的**typeError**属性都将为空。注意，空值属性在JSON表示中被简单省略是可以接受的。
+   2. 除了**SyntaxError**之外，还增加了一个新的**SemanticError**种类。如果输入的AST对应于含有语义错误的ChocoPy程序，那么语义分析阶段的输出应当是一个**Errors**类型的JSON对象，其中将包含一个或多个**SemanticError**类型的节点。请注意，**SemanticError**（语义错误）对象确实继承了一个 locations（位置）属性。该属性将包含与分析导致错误的AST节点相对应的源代码位置。
+
+**具体的需识别的语法推导错误参考[所有错误](#03-错误检测)，需要实现的抽象语法树参考[chocopy_ast.hpp](../../include/parser/chocopy_ast.hpp)**
 
 **特别说明：对于部分token，我们只需要进行过滤，即只需被识别，但是不应该被输出到分析结果中。因为这些token对程序运行不起到任何作用。**
 
-> 注意，你所需修改的文件应仅有[chocopy.l](./src/parser/chocopy.l)和[chocopy.y](./src/parser/chocopy.y)，如果发现其他bug，请开分支只commit你认为的bug并提交PR。关于`FLEX`和`BISON`用法上文已经进行简短的介绍，更高阶的用法请参考百度、谷歌和官方说明。
+> 注意，你所需修改的文件应仅有[chocopy_semant.cpp](../../src/semantic/chocopy_semant.cpp)和[chocopy_parse.cpp](../../src/parser/chocopy_parse.cpp)，后者用于修改输出，如果发现其他bug，请开分支只commit你认为的bug并提交PR。关于`visitor pattern`用法已经在[visitor.md](./visitor.md)中进行简短的介绍，更高阶的用法请参考谷歌和StackOverflow。
 
 ### 1.1 目录结构
 
@@ -135,7 +237,7 @@ protocol，如你们在web上测试的情况可知，这种json的传输协议�
 
 ### 1.2 Bonus
 
-在正确接收所有case的情况下没有Bison任何conflict。[20pts]
+在正确作出所有给出语法推导的情况下报出所有给出案例的错误[10pts]
 
 ### 1.2 编译、运行和验证
 
@@ -168,6 +270,7 @@ protocol，如你们在web上测试的情况可知，这种json的传输协议�
 
     1. sample: 这部分测试均比较简单且单纯，适合开发时调试。
     2. fuzz: 由fuzzer生成的正确的python文件，此项不予开源。
+    3. student: 这部分由同学提供。
 
   我们使用python中的 `json.load()` 命令进行验证。将自己的生成结果和助教提供的 `xxx.typed.ast` 进行比较。
 

@@ -592,6 +592,7 @@ int     INT      1       3       1      6
 
     1. sample: 这部分测试均比较简单且单纯，适合开发时调试。
     2. fuzz: 由fuzzer生成的正确的python文件，此项不予开源。
+    3. student: 这部分由同学提供。
 
   我们使用python中的 `json.load()` 命令进行验证。将自己的生成结果和助教提供的 `xxx.ast` 进行比较。
 
