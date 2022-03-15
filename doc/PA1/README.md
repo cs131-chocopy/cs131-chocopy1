@@ -519,40 +519,25 @@ int     INT      1       3       1      6
 1      IDENT     1       7       1      8
 ```
 
-对语法的抽象语法树输出文件如下，注意location是对子节点树的开始结束取并集。
+对语法的抽象语法树输出文件如下，注意location是对子节点树的开始结束取并集，除了PassStmt。
 
 ```json
 {
   "kind": "Program",
-  "location": [
-    1,
-    6,
-    1,
-    6
-  ],
+  "location": [1, 6, 1, 6],
   "declarations": [],
   "statements": [],
   "errors": {
     "errors": [
       {
         "kind": "CompilerError",
-        "location": [
-          1,
-          8,
-          1,
-          8
-        ],
+        "location": [ 1, 8, 1, 8],
         "message": "Parse error near token EQ: =",
         "syntax": true
       }
     ],
     "kind": "Errors",
-    "location": [
-      0,
-      0,
-      0,
-      0
-    ]
+    "location": [ 0, 0, 0, 0]
   }
 }
 ```
