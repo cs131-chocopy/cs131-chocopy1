@@ -63,9 +63,9 @@ Hilfinger也做出了很大贡献。你可以在 [这里](https://chocopy.org/ch
 
 5, String Literal
 
-$$\begin{array}{ll}\text { Literal } & \text { Value } \\ \text { "Hello" } & \text { Hello } \\ \text { "He\backslash"
-ll\backslash"o" } & \text { He"ll"o } \\ \text { "He\backslash\backslash"llo" } & \text { He\backslash"llo } \\ \text
-{ "Hell\backslasho" } & \text { (error: "\o" not recognized) }\end{array}$$
+$$\begin{array}{ll}\text { Literal } & \text { Value } \\ \text { "Hello" } & \text { Hello } \\ \text { "He}\backslash\text{"
+ll}\backslash\text{"o" } & \text { He"ll"o } \\ \text { "He}\backslash\backslash\text{"llo" } & \text { He}\backslash\text{"llo } \\ \text
+{ "Hell}{\backslash}\text{o" } & \text { (error: "\\o" not recognized) }\end{array}$$
 
 - 注：`[`,  `]` 是分开的token。`[1]`中间不得有空格。
     - `a[1]`应被识别为四个token: `a`, `[`, `1`, `]`
@@ -605,4 +605,3 @@ int     INT      1       3       1      6
   对于每个学生，你需要在资源库的根目录下创建一个名为test/student/的文件夹，并放置20个有意义的*.py测试案例，其中10个将通过所有的编译，另外10个将不通过编译，但测试你代码的错误报告系统。请注意，你的测试案例将被用来评估所有4个项目中其他人的代码，所以要有耐心，并对你的同学狠一点。你的最终成绩将在所有学生都提交了测试案例后重新计算。这一部分占项目部分的2%，但你可以降低其他学生的成绩。
 
   **请注意助教提供的`testcase`并不能涵盖全部的测试情况，完成此部分仅能拿到基础分，请自行设计自己的`testcase`进行测试。**
-  
