@@ -1,49 +1,53 @@
 # Light IR
 
+<!-- TOC -->
+
 - [Light IR](#light-ir)
-    - [IR](#ir)
-        - [IR Features](#ir-features)
-        - [IR Format](#ir-format)
-        - [Instruction](#instruction)
-            - [Terminator Instructions](#terminator-instructions)
-                - [Ret](#ret)
-                - [Br](#br)
-            - [Standard binary operators](#standard-binary-operators)
-                - [Add](#add)
-                - [Sub](#sub)
-                - [Mul](#mul)
-                - [Div](#div)
-                - [Mod](#mod)
-            - [Memory operators](#memory-operators)
-                - [Alloca](#alloca)
-                - [Load](#load)
-                - [Store](#store)
-            - [CastInst](#castinst)
-                - [ZExt](#zext)
-                - [Trunc](#Trunc)
+  - [LightIR](#lightir)
+    - [IR Features](#ir-features)
+    - [IR Format](#ir-format)
+    - [Instruction](#instruction)
+      - [Terminator Instructions](#terminator-instructions)
+        - [Ret](#ret)
+        - [Br](#br)
+      - [Standard binary operators](#standard-binary-operators)
+        - [Add](#add)
+        - [Sub](#sub)
+        - [Mul](#mul)
+        - [Div](#div)
+      - [Memory operators](#memory-operators)
+        - [Alloca](#alloca)
+        - [Load](#load)
+        - [Store](#store)
+      - [CastInst](#castinst)
+        - [ZExt](#zext)
+        - [Trunc](#trunc)
             - [Riscv VExt](#vext)
                 - [VLoad](#vlw)
                 - [VStore](#vsw)
                 - [VAdd](#vadd)
                 - [VSub](#vsub)
                 - [VMul](#vmul)
-            - [Other operators](#other-operators)
-                - [ICmp](#icmp)
-                - [Call](#call)
-                - [GetElementPtr](#getelementptr)
-    - [C++ APIs](#c-apis)
-        - [核心类概念图](#核心类概念图)
-        - [BasicBlock](#basicblock)
-        - [Constant](#constant)
-        - [Function](#function)
-        - [GlobalVariable](#globalvariable)
-        - [IRBuilder](#irbuilder)
-        - [Instruction](#instruction-1)
-        - [Module](#module)
-        - [Type](#type)
-        - [User](#user)
-        - [Value](#value)
-        - [Class](#class)
+      - [Other operators](#other-operators)
+        - [ICmp](#icmp)
+        - [Call](#call)
+        - [GetElementPtr](#getelementptr)
+  - [C++ APIs](#c-apis)
+    - [核心类概念图](#核心类概念图)
+    - [BasicBlock](#basicblock)
+    - [Constant](#constant)
+    - [Function](#function)
+    - [GlobalVariable](#globalvariable)
+    - [IRBuilder](#irbuilder)
+    - [Instruction](#instruction-1)
+    - [Module](#module)
+    - [Type](#type)
+    - [User](#user)
+    - [Value](#value)
+    - [Class](#class)
+    - [总结](#总结)
+
+<!-- /TOC -->
 
 ## LightIR
 
@@ -689,7 +693,8 @@
 
 ### 总结
 
-助教在接口文档里筛选了可能会需要用到的接口，如果对API有问题的请移步issue讨论，本次`lightir`接口由助教自行设计实现，并做了大量测试，如有对助教的实现方法有异议或者建议的也请移步issue讨论，**
-请不要直接修改助教的代码，若因修改助教代码造成后续实验仓库合并的冲突请自行解决**。
+助教在接口文档里筛选了可能会需要用到的接口，如果对API有问题的请移步issue讨论，本次`lightir`接口由助教自行设计实现，并做了大量测试，如有对助教的实现方法有异议或者建议的也请移步issue讨论，
+
+**请碰到问题直接修改代码，尤其是GEP部分，如果觉得其他同学需要你的代码，请提交PR**。
 
 **注**：由于`PA3 bonus`需要直接修改`ir`结构，为了方便同学们实现，助教将大部分私有变量(例如指令链表等)直接返回引用，请注意自己对私有变量的修改。

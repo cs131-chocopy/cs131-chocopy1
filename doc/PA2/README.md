@@ -31,8 +31,9 @@
       - [1.4.2 Neat Code](#142-neat-code)
       - [1.4.3 Design pattern](#143-design-pattern)
       - [1.4.4 Memory Control](#144-memory-control)
-      - [1.4.5 Misc and other part if needed.](#145-misc-and-other-part-if-needed)
+      - [1.4.5 Misc and another part if needed.](#145-misc-and-another-part-if-needed)
     - [1.5 提供可用的测试用例](#15-提供可用的测试用例)
+    - [1.6 评分](#16-评分)
 
 <!-- /TOC -->
 
@@ -390,6 +391,7 @@ autograder将使用以下规则来评估包含语义错误的输入上的实现�
 2. 阅读 `./src/semantic/chocopy_ast.cpp`以及 `./src/semantic/chocopy_semant.cpp`（重在理解分析树的使用）
 3. 了解 `./src/semantic/chocopy_semant.cpp` 中的语义检查，并完成语义检查
 4. 补全 `./src/semantic/chocopy_semant.cpp` 文件，可以添加其他 `Analyzer` ，以及如果你需要其他改写的代码可以自行改写。
+5. 在 `README.md` 中解释你们的设计，遇到的困难和解决方案
 
 ### 1.0.2 提示
 
@@ -600,7 +602,7 @@ public:
     2. fuzz: 由fuzzer生成的正确的python文件，此项不予开源。
     3. student: 这部分由同学提供。
 
-  我们使用python中的 `json.load()` 命令进行验证。将自己的生成结果和助教提供的 `xxx.typed.ast` 进行比较。
+  我们使用python中的 `json.load()` 命令进行验证。将自己的生成结果和助教提供的 `xxx.typed.ast` 进行比较，location部分可以有1-2位置误差。
 
   ```shell
   $ python3 ./duipai.py --pa 2
@@ -615,19 +617,27 @@ public:
 小组需要提供design doc for WriteUp，需要提供以下部分。
 
 #### 1.4.1 Compilation error
-in tag xxx, how you fix the compilation error, using gdb, valgrind, or by other people.
+in tag xxx, how you fix the compilation error, using gdb, Valgrind, or by other people.
 
 #### 1.4.2 Neat Code
-in the final tag, how you change the pointer to smart pointer to save the residual code.
+in the final tag, how do you change the pointer to a smart pointer to save the residual code.
 
 #### 1.4.3 Design pattern
-What design pattern you utilize when you organize your type semantics?
+What design pattern do you utilize when you organize your type semantics?
 
 #### 1.4.4 Memory Control
-How you manage your memory?
+How do you manage your memory?
 
-#### 1.4.5 Misc and other part if needed.
-You can simply answer my questions asked at commit you submit here.
+#### 1.4.5 Misc and another part if needed.
+You can simply answer my questions asked when committing you submit here.
 
 ### 1.5 提供可用的测试用例
 对于每组，需要在资源库的根目录下创建一个名为 `tests/pa2/student/` 的文件夹，并放置20个有意义的 `*.py` 测试案例，其中10个将通过所有的编译，另外10个将不通过编译，但测试你代码的错误报告系统。请注意，你的测试案例将被用来评估所有4个项目中其他人的代码，所以要有耐心，并对你的同学狠一点。你的最终成绩将在所有学生都提交了测试案例后重新计算。这一部分占项目部分的 [6 pts] ，但你可以降低其他学生的成绩。
+
+### 1.6 评分
+
+1. 基本测试样例[55pts]
+2. Fuzzer 测试[10pts]
+3. Student 测试[20pts]
+4. 提供TestCase[5pts]
+5. 报告[10pts]

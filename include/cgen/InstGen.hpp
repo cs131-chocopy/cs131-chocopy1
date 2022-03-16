@@ -144,7 +144,7 @@ public:
 
     static const int imm_8_max = 255;
 
-    /*** Factory methods */
+    /** Factory methods */
     static string instConst(string (*inst)(const Reg &target, const Reg &op1, const Value &op2, string comment),
                             const Reg &target, const Reg &op1, const Constant &op2);
     static string instConst(string (*inst)(const Reg &target, const Reg &op1, const Reg &op2, string comment),
