@@ -9,6 +9,7 @@
       - [0.1.2 for/while变量检查](#012-forwhile变量检查)
       - [0.1.3 函数内变量检查](#013-函数内变量检查)
       - [0.1.4 Class变量检查](#014-class变量检查)
+      - [0.1.5 List变量检查](#015-list变量检查)
   - [0.2 Type Checker 检查](#02-type-checker-检查)
     - [0.2.1 类型语义](#021-类型语义)
   - [0.3 错误检测](#03-错误检测)
@@ -24,14 +25,15 @@
 
 <!-- /TOC -->
 
-在本次实验是个人项目。本实验中需要使用`Visitor Pattern`完成对程序的 Declaration Analysis 和 Type Checker Analysis。 Declaration的结果以 Symbol table 的形式传给Type
-Checker继续检查。从而使`Chocopy`的LSP没有语义错误。
+本次实验是组队实验，请仔细阅读组队要求，并合理进行分工合作。本实验中需要使用`Visitor Pattern`完成对程序的 Declaration Analysis 和 Type Checker Analysis。 Declaration的结果以 Symbol table 的形式传给Type
+Checker继续检查。从而使 `Chocopy` 的LSP没有语义错误。
 
+注意：组队实验意味着合作，但是小组间的交流是受限的，且严格**禁止**代码的共享。除此之外，如果小组和其它组进行了交流，必须在根目录 `README.md` 中记录下来交流的小组和你们之间交流内容。同时，需要在此文件中更新两位同学的邮箱和代码WriteUp，WriteUp要求详见[Code Review.pdf]()。
 ## 0. 基础知识
 
 ### 0.1 Declaration 检查
 
-Declaration 检查是一个申明作用域环境的检查，在python中的变量有四个作用域
+`DeclarationAnalyzer` 检查是一个申明作用域环境的检查，在python中的变量有四个作用域
 
 | 作用域                 | 英文解释                  | 英文简写 |
 | ---------------------- | ------------------------- | -------- |
@@ -41,6 +43,30 @@ Declaration 检查是一个申明作用域环境的检查，在python中的变�
 | python内置模块的作用域 | Builtin                   | B        |
 
 在访问变量时，先查找本地变量，然后是包裹此函数外部的函数内的变量，之后是全局变量 最后是內建作用域内的变量 即： L –> E -> G -> B
+
+```python
+Class Real(object):
+  value:int=0
+  def __init__(self:"Object",val:int)->object:
+    self.value=val
+  def __add__(self:"Object", other:"Object")->Real:
+    return Real(self.value + other.value)
+x:int = 0
+y:int = 1
+
+def P()->int:
+  x:bool = True
+  a:bool = False
+  def Q()->Real:
+    x:Real=None
+    x=Real(1)
+    y:Real=None
+    y=Real(1)
+    return x+y
+  return Q().value
+```
+
+<img src="./symbol_table.png" alt="symbol_table" style="zoom:33%;" />
 
 #### 0.1.1 全局变量检查
 
@@ -80,7 +106,7 @@ def baz(self:"bar", xx: [int]) -> str:
 
 #### 0.1.3 函数内变量检查
 
-Python 支持嵌套定义函数，每次进入函数时需要进入函数本地变量的scope，同时对外部的E/G/B所在定义aware，不能重名，如有调用需要指向外部的symbol。
+Python 支持嵌套定义函数，每次进入函数时需要进入函数本地变量的 scope，同时对外部的 E/G/B 所在定义 aware，不能重名，如有调用需要指向外部的 symbol。
 
 ```python
 x:int = 0
@@ -100,16 +126,157 @@ print(x) # 嵌套内部的变量修改在外部能看到 类似 c++ [&] lambda S
 
 #### 0.1.4 Class变量检查
 
+需要先定义Class，后声明，再定义变量。
+
+```python
+class animal(object):
+  makes_noise:bool = False
+  def make_noise(self: "animal") -> objet:
+    if (self.makes_noise):
+      print (self. sound ())
+  def sound(self: "animal") -> str:
+    return "???"
+class cow(animal):
+  def __init__(self: "cow"):
+    self.makes_noise = True
+  def sound(self: "cow") -> str:
+    return "moo"
+
+c:animal = None
+c = cow()
+c.make_noise() # Prints "moo"
+```
+
+Predefined classes 有 object, int, bool, str, list. 都有 __init__ 方法，以及attribute。自定义 class 可以自定义__init__方法，继承会先放入被继承 class 的 attribute 和 methods，再放入自己的。
+
+```python
+class A(object):
+    a:int = 42
+    def foo(self:"A", ignore:object) -> int:
+        return self.a
+    def bar(self:"A") -> int:
+        print("A")
+        return 0
+class B(A):
+    b:bool = True
+    def __init__(self:"B"):
+        print("B")
+    def bar(self:"B") -> int:
+        print("B")
+        return 0
+class C(B):
+    c:bool = True
+    def __init__(self:"C"):
+        print("C")
+    def foo1(self:"C") -> int:
+        print("B")
+        return 0
+    def bar(self:"C") -> int:
+        print("C")
+        return 0
+def t():
+    def f():
+        return 0
+    return 0
+d:str=input()
+a:A=None
+if d=="sb":
+    a=C()
+else:
+    a=A()
+
+print(a.bar())
+```
+
+声明时可以声明 father class，动态决定实际 class。这时就需要动态 typeclass 来得到 methods。
+
+#### 0.1.5 List变量检查
+
+List 实现是一个 class，所以定义的时候和 class 实例化一样。初始化会调用 `conslist()`，在 riscv 汇编中是放在 __len__ 后面的一个 attribute，是一个 list/bool/int/str/object/classes 的数组。
+
+```bash
+.globl $.list$prototype
+$.list$prototype:
+  .word -1                                 # Type tag for class: .list
+  .word 4                                  # Object size
+  .word 0                                  # Pointer to dispatch table
+  .word 0                                  # Initial value of attribute: __len__
+  .align 2
+```
+
+声明如下：
+
+```python
+x:[[bool]] = None
+y:str = "Hello"
+z:[int] = None
+i:int = 0
+
+x:[[bool]] = [ [True, False], [False, True] ]
+z = [1, 2, 3]
+
+for i in z:
+  print(i)
+
+while i<len(z):
+  print(z[i][1])
+  print(y[i])
+  i = i + 1
+```
+
+List 和 str 都有 `len()` method 获得长度，都可以用 index access 获取元素，for 语句相当于 `while i<len(*)`.
 
 ## 0.2 Type Checker 检查
 
+此项实现在 `TypeChecker` 类中。
 ### 0.2.1 类型语义
 
-## 0.3 错误检测
-语义分析阶段会检测两种类型的错误：语义错误和类型检查错误。语义错误是对第5.2节中所列语义规则的违反。类型检查错误是对ChocoPy语言参考手册中所列类型规则的违反。如果输入的程序包含语义错误，那么语义分析阶段的输出预计将是一个语义错误信息的列表，以及它们的来源位置。只有在没有语义错误的情况下才会报告类型检查错误。如所述，类型检查错误与类型化的AST一起被在线报告。
-### 0.3.1 语义检测
-### 0.3.3 类型检测
+每个类型都有 type tag，预定义如下。
 
+```cpp
+enum type { LIST=-1, OBJECT, INT, BOOL, STRING, CLASS };
+
+constexpr bool is_list_type() const { return tid_ == type::LIST; }
+constexpr bool is_void_type() const { return tid_ == type::VOID; /** reserved type */ }
+constexpr bool is_integer_type() const { return tid_ == type::INT; }
+constexpr bool is_bool_type() const { return tid_ == type::BOOL; /** same as int 1 */ }
+constexpr bool is_string_type() const { return tid_ == type::STRING; }
+constexpr bool is_value_type() const { return is_bool_type() || is_string_type() || is_integer_type(); }
+constexpr bool is_class_type() const { return tid_ >= type::CLASS; }
+```
+
+int/bool/str 不能被 inherit，所有定义的 class 都是继承 object。同时有两个辅助类型 `<None>`, `<Empty>`。type tag 会在刚进入 `TypeChecker` 时算出来，因为此时 `DeclarationAnalyzer` 把 SymbolTable 已经求出来了。
+
+```cpp
+/** set up default class hierarchy
+ * <None> <= object
+ * <Empty> <= object
+ * <None> <= <None>
+ * <Empty> <= <Empty>
+ */
+map<string, string> super_classes = {{"int", "object"},   {"bool", "int"},      {"none", "object"},
+                                     {"empty", "object"}, {"<None>", "object"}, {"<Empty>", "object"}};
+```
+
+以下是基本的类型传播：
+
+1. $T_{1} \leq T_{2}$ (i.e., ordinary subtyping)
+2. $T_{1}$ is <None $>$ and $T_{2}$ is not int, bool, or str.
+3. $T_{2}$ is a list type $[T]$ and $T_{1}$ is <Empty>.
+4. $T_{2}$ is a the list type $[\mathrm{T}]$ and $T_{1}$ is $[\langle$ None $\rangle]$, where $\langle$ None $\rangle \leq a T$
+
+最后两项的定义是为了防止 x:[A]= [None, None]，x:[ [A ] ]=[ [None ] ] 这两种情况。
+
+对于其他 op 的类型传播
+## 0.3 错误检测
+所有官方需要报的错误在[pa2](../../tests/pa2/sample)下以**bad**打头。
+1. [bad_duplicate_global.py](../../tests/pa2/sample/bad_duplicate_global.py)
+
+语义分析阶段会检测两种类型的错误：语义错误和类型检查错误。语义错误是对上述所列语义规则的违反。类型检查错误是对ChocoPy语言参考手册中所列类型规则的违反。如果输入的程序包含语义错误，那么语义分析阶段的输出预计将是一个语义错误信息的列表，以及它们的来源位置。只有在没有语义错误的情况下才会报告类型检查错误。如所述，类型检查错误与类型化的AST一起被在线报告。
+### 0.3.1 语义检测
+
+### 0.3.3 类型检测
+本检查主要是为了
 ## 1. 实验要求
 
 本实验的输出可以实现对语义检查的要求，建立在语法没有错误的基础上，同样可以输出高亮在IDE中。
@@ -215,8 +382,8 @@ a: int = 1
 #### 1.0.2.1 注意两者的区别
 
 1. 添加了新的对象类型**ValueType**、**ClassValueType**、**ListValueType**。这些将被用来存储类型检查后推断出的程序表达式的类型信息。注意，这些类型几乎与**TypeAnnotation**和它的两个子类型完全相似。
-  ![extend_node](./extend_node.png)
-  **TypeAnnotation**和**ValueType**之间的区别在于，后者没有扩展Node；因此，ValueType对象没有位置属性。这应该是有道理的，因为在语义分析期间分配的类型实际上并不存在于源代码中。
+    ![extend_node](./extend_node.png)
+    **TypeAnnotation**和**ValueType**之间的区别在于，后者没有扩展Node；因此，ValueType对象没有位置属性。这应该是有道理的，因为在语义分析期间分配的类型实际上并不存在于源代码中。
 2. 类型Expr有一个新的属性：inferredType，它可以是null。在分析器产生的AST中，这个属性对每个表达式都是空的。语义分析为每个可以求值的程序表达式推断类型。具体来说，推断类型（inferredType）属性只对以下情况保持空。
    1. 直接出现在**FuncDef**、**ClassDef**、**TypedVar**、**GlobalDecl**、**NonlocalDecl**、**VarAssignExpr**、**VarAssignStmt**、**MemberExpr**、**ForStmt**或**CallExpr**属性中的标识符对象
    2. 紧接着**MethodCallExpr**、**MemberAssignExpr**或**MemberAssignStmt**中包含的**MemberExpr**
@@ -234,6 +401,8 @@ a: int = 1
 ### 1.1 目录结构
 
 详见[common/structure.md](./doc/common/structure.md)
+
+<img src="./visitor_graph.png" alt="visitor_image" style="zoom:33%;" />
 
 ### 1.2 Bonus
 
@@ -281,4 +450,3 @@ a: int = 1
   ```
 
   **请注意助教提供的`testcase`并不能涵盖全部的测试情况，完成此部分仅能拿到基础分，请自行设计自己的`testcase`进行测试。**
-  
