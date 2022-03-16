@@ -12,6 +12,7 @@
       - [0.1.5 List变量检查](#015-list变量检查)
   - [0.2 Type Checker 检查](#02-type-checker-检查)
     - [0.2.1 类型语义](#021-类型语义)
+    - [0.2.2 类型推导](#022-类型推导)
   - [0.3 错误检测](#03-错误检测)
     - [0.3.1 语义检测](#031-语义检测)
     - [0.3.3 类型检测](#033-类型检测)
@@ -265,18 +266,26 @@ map<string, string> super_classes = {{"int", "object"},   {"bool", "int"},      
 3. $T_{2}$ is a list type $[T]$ and $T_{1}$ is <Empty>.
 4. $T_{2}$ is a the list type $[\mathrm{T}]$ and $T_{1}$ is $[\langle$ None $\rangle]$, where $\langle$ None $\rangle \leq a T$
 
-最后两项的定义是为了防止 x:[A]= [None, None]，x:[ [A ] ]=[ [None ] ] 这两种情况。
+最后两项的定义是为了防止 x:[A]= [None, None]，x:[ [A ] ]=[ [None ] ] 这两种情况，同时 List 若内部的 type 不一样是无法传播的。
 
-对于其他 op 的类型传播
+对于其他 op 的类型传播可以用 Least Common Ancestor 来刻画。
+
+1. 如果$A\leq_{a} B$，那么$A\sqcup B=B\sqcup A=B$
+2. 否则，$A\sqcup B$只是$A$和$B$在由$\leq$定义的树状类型层次中的最小共同祖先。
+
+### 0.2.2 类型推导
+此部分详见[ChocoPy Language Reference](../chocopy_language_reference.pdf)的 Section 5. 首先需要定义现在所在的 Type Environment，由一个四元组定义 $$
 ## 0.3 错误检测
 所有官方需要报的错误在[pa2](../../tests/pa2/sample)下以**bad**打头。
-1. [bad_duplicate_global.py](../../tests/pa2/sample/bad_duplicate_global.py)
+1. [bad_duplicate_global.py](../../tests/pa2/sample/bad_duplicate_global.py) 
 
 语义分析阶段会检测两种类型的错误：语义错误和类型检查错误。语义错误是对上述所列语义规则的违反。类型检查错误是对ChocoPy语言参考手册中所列类型规则的违反。如果输入的程序包含语义错误，那么语义分析阶段的输出预计将是一个语义错误信息的列表，以及它们的来源位置。只有在没有语义错误的情况下才会报告类型检查错误。如所述，类型检查错误与类型化的AST一起被在线报告。
 ### 0.3.1 语义检测
 
 ### 0.3.3 类型检测
 本检查主要是为了
+
+
 ## 1. 实验要求
 
 本实验的输出可以实现对语义检查的要求，建立在语法没有错误的基础上，同样可以输出高亮在IDE中。

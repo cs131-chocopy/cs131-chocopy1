@@ -129,7 +129,7 @@ look, I find 2 words of 10 chars
 
 ## 0.4 ChocoPy 语法
 
-本小节将给出ChocoPy的语法，详情请参考[ChocoPy Language Reference](./doc/chocopy_language_reference.pdf)。
+本小节将给出ChocoPy的语法，详情请参考[ChocoPy Language Reference](../chocopy_language_reference.pdf)。
 
 我们将 ChocoPy 的所有规则分为五类。
 
