@@ -20,6 +20,7 @@
     - [1.0.1 主要工作](#101-主要工作)
     - [1.0.2 提示](#102-提示)
       - [1.0.2.1 注意两者的区别](#1021-注意两者的区别)
+      - [1.0.2.2 推荐流程](#1022-推荐流程)
     - [1.1 代码结构](#11-代码结构)
       - [1.1.1 `SymbolTable`](#111-symboltable)
       - [1.1.2 `SymbolType` 和 `ValueType`](#112-symboltype-和-valuetype)
@@ -31,6 +32,7 @@
       - [1.4.3 Design pattern](#143-design-pattern)
       - [1.4.4 Memory Control](#144-memory-control)
       - [1.4.5 Misc and other part if needed.](#145-misc-and-other-part-if-needed)
+    - [1.5 提供可用的测试用例](#15-提供可用的测试用例)
 
 <!-- /TOC -->
 
@@ -500,8 +502,8 @@ a: int = 1
    和它的两个子类型完全相似。
    ![extend_node](./extend_node.png)
    **TypeAnnotation**和**ValueType**之间的区别在于，后者没有扩展Node；因此，ValueType对象没有位置属性。这应该是有道理的，因为在语义分析期间分配的类型实际上并不存在于源代码中。
-   2.
-   类型Expr有一个新的属性：inferredType，它可以是null。在分析器产生的AST中，这个属性对每个表达式都是空的。语义分析为每个可以求值的程序表达式推断类型。具体来说，推断类型（inferredType）属性只对以下情况保持空。
+2.
+类型Expr有一个新的属性：inferredType，它可以是null。在分析器产生的AST中，这个属性对每个表达式都是空的。语义分析为每个可以求值的程序表达式推断类型。具体来说，推断类型（inferredType）属性只对以下情况保持空。
     1. 直接出现在**FuncDef**、**ClassDef**、**TypedVar**、**GlobalDecl**、**NonlocalDecl**、**VarAssignExpr**、**VarAssignStmt**、**
        MemberExpr**、**ForStmt**或**CallExpr**属性中的标识符对象
     2. 紧接着**MethodCallExpr**、**MemberAssignExpr**或**MemberAssignStmt**中包含的**MemberExpr**
@@ -513,6 +515,14 @@ a: int = 1
     2. 除了**SyntaxError**之外，还增加了一个新的**SemanticError**种类。如果输入的AST对应于含有语义错误的ChocoPy程序，那么语义分析阶段的输出应当是一个**Errors**
        类型的JSON对象，其中将包含一个或多个**SemanticError**类型的节点。请注意，**SemanticError**（语义错误）对象确实继承了一个
        locations（位置）属性。该属性将包含与分析导致错误的AST节点相对应的源代码位置。
+
+#### 1.0.2.2 推荐流程
+
+这项任务可能比上一项任务大得多。然而，这项任务让你的设计决策提供了更多的空间，使其能够采取灵活的实施策略。我已经在启动代码中以 skeleton 实现的形式提供了一些指导，以下是流程建议。然而，你最终会做到哪一步，主要取决于你自己。
+
+1. Tree Traversal 写完基本的 `visit()`。
+2. Type Hierarchy 把符号表写完。
+3. Type Checking 实现所有 type 检查。
 
 **具体的需识别的语法推导错误参考[所有错误](#03-错误检测)，需要实现的抽象语法树参考[chocopy_ast.hpp](../../include/parser/chocopy_ast.hpp)**
 
@@ -562,7 +572,7 @@ public:
     template <typename _Ty> bool neq(const _Ty &_Value);
 };
 ```
-`SymbolType` 
+`SymbolType` 是一个纯虚类，用于标记所有 type，实现了 `eq` 和 `neq`。`ValueType` 和 `FunctionDefType` 都继承自 `SymbolType`。
 ```cpp
 class ValueType : public SymbolType {
 public:
@@ -572,6 +582,8 @@ public:
     string get_name() override;
 };
 ```
+
+`ClassValueType` 和 `ListValueType` 都继承自 `ValueType`。可以通过 `is_*_type()` 来判断类型。
 ### 1.2 Bonus
 
 在正确作出所有给出语法推导的情况下报出所有给出案例的错误[10pts]
@@ -637,3 +649,6 @@ How you manage your memory?
 
 #### 1.4.5 Misc and other part if needed.
 You can simply answer my questions asked at commit you submit here.
+
+### 1.5 提供可用的测试用例
+对于每组，需要在资源库的根目录下创建一个名为 `tests/pa2/student/` 的文件夹，并放置20个有意义的 `*.py` 测试案例，其中10个将通过所有的编译，另外10个将不通过编译，但测试你代码的错误报告系统。请注意，你的测试案例将被用来评估所有4个项目中其他人的代码，所以要有耐心，并对你的同学狠一点。你的最终成绩将在所有学生都提交了测试案例后重新计算。这一部分占项目部分的 [6 pts] ，但你可以降低其他学生的成绩。
