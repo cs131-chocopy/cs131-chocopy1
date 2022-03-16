@@ -36,11 +36,9 @@
 
 <!-- /TOC -->
 
-本次实验是组队实验，请仔细阅读组队要求，并合理进行分工合作。本实验中需要使用`Visitor Pattern`完成对程序的 Declaration Analysis 和 Type Checker Analysis。
-Declaration的结果以 Symbol table 的形式传给Type Checker继续检查。从而使 `Chocopy` 的LSP没有语义错误。
+本次实验是组队实验，请仔细阅读组队要求，并合理进行分工合作。本实验中需要使用`Visitor Pattern`完成对程序的 Declaration Analysis 和 Type Checker Analysis。Declaration的结果以 Symbol table 的形式传给Type Checker继续检查。从而使 `Chocopy` 的LSP没有语义错误。
 
-注意：组队实验意味着合作，但是小组间的交流是受限的，且严格**禁止**代码的共享。除此之外，如果小组和其它组进行了交流，必须在根目录 `README.md`
-中记录下来交流的小组和你们之间交流内容。同时，需要在此文件中更新两位同学的邮箱和代码WriteUp，WriteUp要求详见[1.4](#14-writeup)。
+注意：组队实验意味着合作，但是小组间的交流是受限的，且严格**禁止**代码的共享。除此之外，如果小组和其它组进行了交流，必须在根目录 `README.md`中记录下来交流的小组和你们之间交流内容。同时，需要在此文件中更新两位同学的邮箱和代码WriteUp，WriteUp要求详见[1.4](#14-writeup)。
 
 ## 0. 基础知识
 
@@ -179,8 +177,7 @@ c = cow()
 c.make_noise()  # Prints "moo"
 ```
 
-Predefined classes 有 object, int, bool, str, list. 都有 __init__ 方法，以及attribute。自定义 class 可以自定义__init__方法，继承会先放入被继承 class
-的 attribute 和 methods，再放入自己的。
+Predefined classes 有 object, int, bool, str, list. 都有 `__init__` 方法，以及attribute。自定义 class 可以自定义 `__init__` 方法，继承会先放入被继承 class 的 attribute 和 methods，再放入自己的。
 
 ```python
 class A(object):
@@ -241,8 +238,7 @@ print(a.bar())
 
 #### 0.1.5 List变量检查
 
-List 实现是一个 class，所以定义的时候和 class 实例化一样。初始化会调用 `conslist()`，在 riscv 汇编中是放在 __len__ 后面的一个 attribute，是一个
-list/bool/int/str/object/classes 的数组。
+List 实现是一个 class，所以定义的时候和 class 实例化一样。初始化会调用 `conslist()`，在 riscv 汇编中是放在 __len__ 后面的一个 attribute，是一个 list/bool/int/str/object/classes 的数组。
 
 ```bash
 .globl $.list$prototype
@@ -288,17 +284,16 @@ List 和 str 都有 `len()` method 获得长度，都可以用 index access 获�
 enum type { LIST=-1, OBJECT, INT, BOOL, STRING, CLASS };
 
 constexpr bool is_list_type() const { return tid_ == type::LIST; }
-constexpr bool is_void_type() const { return tid_ == type::VOID; /** reserved type */ }
+constexpr bool is_void_type() const { return tid_ == type::VOID; }
 constexpr bool is_integer_type() const { return tid_ == type::INT; }
-constexpr bool is_bool_type() const { return tid_ == type::BOOL; /** same as int 1 */ }
-constexpr bool is_string_type() const { return tid_ == type::STRING; }
-constexpr bool is_value_type() const { return is_bool_type() || is_string_type() 
-            || is_integer_type(); }
+constexpr bool is_bool_type() const { return tid_ == type::BOOL; }
+constexpr bool is_string_type() const { return tid_ == type::STRING;}
+constexpr bool is_value_type() const { return is_bool_type() ||  
+             is_string_type() || is_integer_type(); }
 constexpr bool is_class_type() const { return tid_ >= type::CLASS; }
 ```
 
-int/bool/str 不能被 inherit，所有定义的 class 都是继承 object。同时有两个辅助类型 `<None>`, `<Empty>`。type tag 会在刚进入 `TypeChecker`
-时算出来，因为此时 `DeclarationAnalyzer` 把 SymbolTable 已经求出来了。
+int/bool/str 不能被 inherit，所有定义的 class 都是继承 object。同时有两个辅助类型 `<None>`,`<Empty>`。type tag 会在刚进入 `TypeChecker` 时算出来，因为此时 `DeclarationAnalyzer` 把 SymbolTable 已经求出来了。
 
 ```cpp
 /** set up default class hierarchy
@@ -317,8 +312,8 @@ map<string, string> super_classes = {{"int", "object"},  {"bool", "int"},
 1. $T_{1} \leq T_{2}$ (i.e., ordinary subtyping)
 2. $T_{1}$ is <None $>$ and $T_{2}$ is not int, bool, or str.
 3. $T_{2}$ is a list type $[T]$ and $T_{1}$ is <Empty>.
-4. $T_{2}$ is a the list type $[\mathrm{T}]$ and $T_{1}$ is $[\langle$ None $\rangle]$, where $\langle$ None $\rangle
-   \leq a T$
+4. $T_{2}$ is a list type $[\mathrm{T}]$ and $T_{1}$ is $[\langle$ None $\rangle]$, where $\langle$ None $\rangle
+   \leq_ a T$
 
 最后两项的定义是为了防止 x:[A]= [None, None]，x:[ [A ] ]=[ [None ] ] 这两种情况，同时 List 若内部的 type 不一样是无法传播的。
 
@@ -329,12 +324,9 @@ map<string, string> super_classes = {{"int", "object"},  {"bool", "int"},
 
 ### 0.2.2 类型推导
 
-此部分详见[ChocoPy Language Reference](../chocopy_language_reference.pdf)的 Section 5. 首先需要定义现在所在的 Type Environment，由一个四元组定义
-$<O,M,C,R>$,定义了 `TypeChecker` 的检查环境，$O$由全局 `SymbolTable` 决定，$M$由 `ClassDefType` 决定，$C$由局部 `SymbolTable`
-决定，$R$由 `FunctionDefType` 决定。以 `is` 关键词为例。
+此部分详见[ChocoPy Language Reference](../chocopy_language_reference.pdf)的 Section 5. 首先需要定义现在所在的 Type Environment，由一个四元组定义$<O,M,C,R>$,定义了 `TypeChecker` 的检查环境，$O$由全局 `SymbolTable` 决定，$M$由 `ClassDefType` 决定，$C$由局部 `SymbolTable`决定，$R$由 `FunctionDefType` 决定。以 `is` 关键词为例。
 
-$$O, M, C, R \vdash e_{1}: T_{1}\\ O, M, C, R \vdash e_{2}: T_{2}\\ \frac{T_{1}, T_{2} \text { are not one of } i n t, s
-t r, \text { bool }}{O, M, C, R \vdash e_{1} \text { is } e_{2}: \text { bool }}$$
+$$O, M, C, R \vdash e_{1}: T_{1}\\ O, M, C, R \vdash e_{2}: T_{2}\\ \frac{T_{1}, T_{2} \text { are not one of } i n t, s t r, \text { bool }}{O, M, C, R \vdash e_{1} \text { is } e_{2}: \text { bool }}$$
 
 规则需要写在 `BinaryExpr` 中，若 `operator` 是 `is`， 判断是否存在 subclass 关系，判断错误，返回 bool。
 
@@ -352,7 +344,7 @@ b_{n+1}}$$
 $$O, M, C, R \vdash e_{1}: T_{1}^{\prime \prime}\\ O, M, C, R \vdash e_{2}: T_{2}^{\prime \prime}\\ \vdots\\ O, M, C, R
 \vdash e_{n}: T_{n}^{\prime \prime}\\ n \geq 0\\ O(f)=\left\{T_{1} \times \cdots \times T_{n} \rightarrow T_{0} ; x_{1},
 \ldots, x_{n} ; v_{1}: T_{1}^{\prime}, \ldots, v_{m}: T_{m}^{\prime}\right\}\\ \forall 1<i<n: T_{i}^{\prime \prime}<_{q}
-T_{i}\\ O, M, C, R \vdash f\left(e_{1}, e_{2}, \ldots, e_{n}\right): T_{0}$$
+T_{i}\\ \overline{O, M, C, R \vdash f\left(e_{1}, e_{2}, \ldots, e_{n}\right): T_{0}}$$
 
 其他规则请同学自行查阅并实现。
 
@@ -360,22 +352,13 @@ T_{i}\\ O, M, C, R \vdash f\left(e_{1}, e_{2}, \ldots, e_{n}\right): T_{0}$$
 
 所有官方需要报的错误在[pa2](../../tests/pa2/sample)下以**bad**打头。
 
-1. [bad_duplicate_global.py](../../tests/pa2/sample/bad_duplicate_global.py)
-   /[bad_duplicate_local.py](../../tests/pa2/sample/bad_duplicate_local.py) 需要给出 Duplicate declaration of identifier in
+1. [bad_duplicate_global.py](../../tests/pa2/sample/bad_duplicate_global.py)/[bad_duplicate_local.py](../../tests/pa2/sample/bad_duplicate_local.py) 需要给出 Duplicate declaration of identifier in
    same scope。
-2. [bad_expr_binary.py](../../tests/pa2/sample/bad_expr_binary.py)
-   /[bad_expr_unary.py](../../tests/pa2/sample/bad_expr_unary.py) 需要给出 BinaryExpr/UnaryExpr 的 type 不可cast。
-3. [bad_func_def_return.py](../../tests/pa2/sample/bad_func_def_return.py)
-   /[bad_func_def_call.py](../../tests/pa2/sample/bad_func_def_call.py)
-   /[bad_return_missing.py](../../tests/pa2/sample/bad_return_missing.py)
-   /[bad_return_top.py](../../tests/pa2/sample/bad_return_top.py) 需要给出 Function 的 type checking 未过。
-4. [bad_list_assign.py](../../tests/pa2/sample/bad_list_assign.py)
-   /[bad_list_index.py](../../tests/pa2/sample/bad_list_index.py) 需要给出 List 的 type checking 未过。
-5. [bad_nonlocal_global.py](../../tests/pa2/sample/bad_nonlocal_global.py)
-   /[bad_shadow_local.py](../../tests/pa2/sample/bad_shadow_local.py)
-   /[bad_shadow_local_2.py](../../tests/pa2/sample/bad_shadow_local_2.py) 需要给出 Scope 未过。
-6. [bad_*_assign.py](../../tests/pa2/sample/bad_*_assign.py)/[bad_type_*.py](../../tests/pa2/sample/bad_type_*.py) 需要给出
-   Assign Variable 未过。
+2. [bad_expr_binary.py](../../tests/pa2/sample/bad_expr_binary.py)/[bad_expr_unary.py](../../tests/pa2/sample/bad_expr_unary.py) 需要给出 BinaryExpr/UnaryExpr 的 type 不可cast。
+3. [bad_func_def_return.py](../../tests/pa2/sample/bad_func_def_return.py)/[bad_func_def_call.py](../../tests/pa2/sample/bad_func_def_call.py)/[bad_return_missing.py](../../tests/pa2/sample/bad_return_missing.py)/[bad_return_top.py](../../tests/pa2/sample/bad_return_top.py) 需要给出 Function 的 type checking 未过。
+4. [bad_list_assign.py](../../tests/pa2/sample/bad_list_assign.py)/[bad_list_index.py](../../tests/pa2/sample/bad_list_index.py) 需要给出 List 的 type checking 未过。
+5. [bad_nonlocal_global.py](../../tests/pa2/sample/bad_nonlocal_global.py)/[bad_shadow_local.py](../../tests/pa2/sample/bad_shadow_local.py)/[bad_shadow_local_2.py](../../tests/pa2/sample/bad_shadow_local_2.py) 需要给出 Scope 未过。
+6. [bad_*_assign.py](../../tests/pa2/sample/bad_*_assign.py)/[bad_type_*.py](../../tests/pa2/sample/bad_type_*.py) 需要给出 Assign Variable 未过。
 
 语义分析阶段会检测两种类型的错误：语义错误和类型检查错误。语义错误是对上述所列语义规则的违反。类型检查错误是对ChocoPy语言参考手册中所列类型规则的违反。如果输入的程序包含语义错误，那么语义分析阶段的输出预计将是一个语义错误信息的列表，以及它们的来源位置。只有在没有语义错误的情况下才会报告类型检查错误。如所述，类型检查错误与类型化的AST一起被在线报告。
 
@@ -383,7 +366,7 @@ T_{i}\\ O, M, C, R \vdash f\left(e_{1}, e_{2}, \ldots, e_{n}\right): T_{0}$$
 
 您的实现应当能够从语义错误恢复，并继续分析程序的其余部分，以便尽可能多地报告语义错误。与从解析错误中恢复不同，语义分析中的错误恢复执行起来要简单得多，因为你可以简单地报告一个错误并继续分析AST的其余部分。
 
-autograder将使用以下规则来评估您在包含语义错误的输入上的实现：只有当参考实现所报告的所有语义错误也被您提交的实现所报告时，测试才能通过。换句话说，参考实现所报告的语义错误应该是您的实现所报告错误的一个子集。
+autograder将使用以下规则来评估包含语义错误的输入上的实现：只有当参考实现所报告的所有语义错误也被您提交的实现所报告时，测试才能通过。也即是参考实现所报告的语义错误应该是实现所报告错误的一个子集。
 
 ### 0.3.3 类型检测
 
@@ -502,19 +485,15 @@ a: int = 1
    和它的两个子类型完全相似。
    ![extend_node](./extend_node.png)
    **TypeAnnotation**和**ValueType**之间的区别在于，后者没有扩展Node；因此，ValueType对象没有位置属性。这应该是有道理的，因为在语义分析期间分配的类型实际上并不存在于源代码中。
-2.
-类型Expr有一个新的属性：inferredType，它可以是null。在分析器产生的AST中，这个属性对每个表达式都是空的。语义分析为每个可以求值的程序表达式推断类型。具体来说，推断类型（inferredType）属性只对以下情况保持空。
-    1. 直接出现在**FuncDef**、**ClassDef**、**TypedVar**、**GlobalDecl**、**NonlocalDecl**、**VarAssignExpr**、**VarAssignStmt**、**
-       MemberExpr**、**ForStmt**或**CallExpr**属性中的标识符对象
-    2. 紧接着**MethodCallExpr**、**MemberAssignExpr**或**MemberAssignStmt**中包含的**MemberExpr**
-    3. 紧接着 **IndexAssignExpr**或 **IndexAssignStmt**中包含的 **IndexExpr**。注意，空值属性在JSON表示中被简单省略是可以接受的。
-3. 如果有语法错误，对应的errors为`CompilerError`且`syntax=true`。对语法接收的errors体现为`Error`
-   ，检测程序不会检查错误信息与个数，所以不需要考虑错误的贪心信息，可以找到一个不可接收的程序直接报错返回。
+   2.
+   类型Expr有一个新的属性：inferredType，它可以是null。在分析器产生的AST中，这个属性对每个表达式都是空的。语义分析为每个可以求值的程序表达式推断类型。具体来说，推断类型（inferredType）属性只对以下情况保持空。
+    1. 直接出现在**FuncDef**、 **ClassDef**、 **TypedVar**、 **GlobalDecl**、 **NonlocalDecl**、 **VarAssignExpr**、  **VarAssignStmt** 、 **MemberExpr**、 **ForStmt **或 **CallExpr** 属性中的标识符对象
+    2. 紧接着 **MethodCallExpr**、 **MemberAssignExpr** 或 **MemberAssignStmt** 中包含的 **MemberExpr**
+    3. 紧接着 **IndexAssignExpr** 或 **IndexAssignStmt** 中包含的 **IndexExpr**。注意，空值属性在JSON表示中被简单省略是可以接受的。
+3. 如果有语法错误，对应的errors为`CompilerError`且`syntax=true`。对语法接收的errors体现为`Error`，检测程序不会检查错误信息与个数，所以不需要考虑错误的贪心信息，可以找到一个不可接收的程序直接报错返回。
     1. Node种类有一个新的属性：**typeError**。在解析器产生的AST中，这个属性对每个节点都是空的。如果在对一个节点进行类型检查时出现了错误，那么该节点的**typeError**
        将为非空。对于一个类型良好的ChocoPy程序来说，在语义分析阶段的输出中，每个节点的**typeError**属性都将为空。注意，空值属性在JSON表示中被简单省略是可以接受的。
-    2. 除了**SyntaxError**之外，还增加了一个新的**SemanticError**种类。如果输入的AST对应于含有语义错误的ChocoPy程序，那么语义分析阶段的输出应当是一个**Errors**
-       类型的JSON对象，其中将包含一个或多个**SemanticError**类型的节点。请注意，**SemanticError**（语义错误）对象确实继承了一个
-       locations（位置）属性。该属性将包含与分析导致错误的AST节点相对应的源代码位置。
+     2. 除了**SyntaxError**之外，还增加了一个新的**SemanticError**种类。如果输入的AST对应于含有语义错误的ChocoPy程序，那么语义分析阶段的输出应当是一个**Errors**类型的JSON对象，其中将包含一个或多个**SemanticError**类型的节点。请注意，**SemanticError**（语义错误）对象确实继承了一个locations（位置）属性。该属性将包含与分析导致错误的AST节点相对应的源代码位置。
 
 #### 1.0.2.2 推荐流程
 
@@ -525,8 +504,6 @@ a: int = 1
 3. Type Checking 实现所有 type 检查。
 
 **具体的需识别的语法推导错误参考[所有错误](#03-错误检测)，需要实现的抽象语法树参考[chocopy_ast.hpp](../../include/parser/chocopy_ast.hpp)**
-
-**特别说明：对于部分token，我们只需要进行过滤，即只需被识别，但是不应该被输出到分析结果中。因为这些token对程序运行不起到任何作用。**
 
 > 注意，你所需修改的文件应仅有[chocopy_semant.cpp](../../src/semantic/chocopy_semant.cpp)和[chocopy_parse.cpp](../../src/parser/chocopy_parse.cpp)，后者用于修改输出，如果发现其他bug，请开分支只commit你认为的bug并提交PR。关于`visitor pattern`用法已经在[visitor.md](./visitor.md)中进行简短的介绍，更高阶的用法请参考谷歌和StackOverflow。
 
@@ -573,6 +550,7 @@ public:
 };
 ```
 `SymbolType` 是一个纯虚类，用于标记所有 type，实现了 `eq` 和 `neq`。`ValueType` 和 `FunctionDefType` 都继承自 `SymbolType`。
+
 ```cpp
 class ValueType : public SymbolType {
 public:
@@ -583,7 +561,8 @@ public:
 };
 ```
 
-`ClassValueType` 和 `ListValueType` 都继承自 `ValueType`。可以通过 `is_*_type()` 来判断类型。
+`ClassValueType` 和 `ListValueType` 都继承自 `ValueType`。可以通过 `is_*_type()` 来判断类型，`annotate_to_val()` 从 `TypeAnnotation` 转换到 `Type`.
+
 ### 1.2 Bonus
 
 在正确作出所有给出语法推导的情况下报出所有给出案例的错误[10pts]

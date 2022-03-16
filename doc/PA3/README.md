@@ -42,7 +42,6 @@ Class代码框架
 2. 阅读[实验框架](#1-实验框架)，理解如何使用框架以及注意事项
 3. 修改 [chocopy_lightir.cpp](../../src/ir-optimizer/chocopy_lightir.cpp) 来实现自动 IR 产生的算法，使得它能正确编译任何合法的 ChocoPy 程序
 4. 在 `report.md` 中解释你们的设计，遇到的困难和解决方案
-5. 由**队长**在 `contribution.md` 中解释每位队员的贡献，并说明贡献比例
 
 #### 1.2.1  几点说明
 由于 LLVM IR 是强类型的
