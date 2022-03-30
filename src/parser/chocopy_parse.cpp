@@ -160,7 +160,7 @@ cJSON *Literal::toJSON() {
 }
 
 cJSON *AssignStmt::toJSON() {
-    cJSON *d = Decl::toJSON();
+    cJSON *d = Stmt::toJSON();
 
     /* d["targets"] = [t.toJSON() for t in self.targets] */
 #if PA1
@@ -569,6 +569,8 @@ cJSON *Program::toJSON() {
         cJSON_AddStringToObject(err, "kind", "Errors");
         int *i = new int[4]{0};
         cJSON_AddItemToObject(err, "locations", cJSON_CreateIntArray(i, 4));
+    } else {
+        cJSON_AddItemToObject(d, "errors", this->errors->toJSON());
     }
     return d;
 }

@@ -308,7 +308,7 @@ public:
 };
 
 /** Single and multiple assignments. DEPRECATED from semantic */
-class AssignStmt : public Decl {
+class AssignStmt : public Stmt {
 public:
     vector<Expr *> *targets;
     Expr *value;
@@ -316,7 +316,7 @@ public:
     /** AST for TARGETS[0] = TARGETS[1] = ... = VALUE spanning source locations
      *  [LEFT..RIGHT].
      */
-    AssignStmt(int *location, vector<Expr *> *target, Expr *value) : Decl(location, "AssignStmt") {
+    AssignStmt(int *location, vector<Expr *> *target, Expr *value) : Stmt(location, "AssignStmt") {
         this->targets = target;
         this->value = value;
     }
@@ -424,7 +424,7 @@ public:
     CallExpr(int *location, Ident *function, vector<Expr *> *args) : Expr(location, "CallExpr") {
         this->function = function;
         this->args = args;
-        this->has_args = true;
+        this->has_args = args->size() > 0;
     }
 
     CallExpr(int *location, Ident *function) : Expr(location, "CallExpr") {
@@ -717,7 +717,7 @@ public:
      */
     ListExpr(int *location, vector<Expr *> *elements) : Expr(location, "ListExpr") {
         this->elements = elements;
-        this->has_expr = true;
+        this->has_expr = elements->size() > 0;
     }
     explicit ListExpr(int *location) : Expr(location, "ListExpr") { this->has_expr = false; }
 
@@ -783,7 +783,7 @@ public:
         this->location = location;
         this->args = args;
         this->method = method;
-        this->has_args = true;
+        this->has_args = args->size() > 0;
     }
     /** The initializer for unintialised args*/
     MethodCallExpr(int *location, MemberExpr *method) : Expr(location, "MethodCallExpr") {
