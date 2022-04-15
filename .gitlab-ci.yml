@@ -10,7 +10,7 @@ build-job:
         - mkdir build
         - cd build
         - cmake .. -G "Ninja"
-        - ninja
+        - ninja parser
     artifacts: 
         paths:
             - build
