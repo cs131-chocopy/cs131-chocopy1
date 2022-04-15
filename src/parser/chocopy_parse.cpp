@@ -169,7 +169,7 @@ cJSON *Literal::toJSON() {
 }
 
 cJSON *AssignStmt::toJSON() {
-    cJSON *d = Decl::toJSON();
+    cJSON *d = Stmt::toJSON();
 
     /* d["targets"] = [t.toJSON() for t in self.targets] */
 #if PA1
@@ -644,7 +644,7 @@ cJSON *VarAssignStmt::toJSON() {
 
     cJSON_AddItemToObject(target_stmt, "var", this->var->toJSON());
 #else
-    cJSON_AddItemToObject(d, "var", this->var->toJSO    N());
+    cJSON_AddItemToObject(d, "var", this->var->toJSO N());
 #endif
     /** check whether there's a parsing error */
     if (!info.empty()) {
