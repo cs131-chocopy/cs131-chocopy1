@@ -308,7 +308,7 @@ public:
 };
 
 /** Single and multiple assignments. DEPRECATED from semantic */
-class AssignStmt : public Decl {
+class AssignStmt : public Stmt {
 public:
     vector<Expr *> *targets;
     Expr *value;
@@ -316,7 +316,7 @@ public:
     /** AST for TARGETS[0] = TARGETS[1] = ... = VALUE spanning source locations
      *  [LEFT..RIGHT].
      */
-    AssignStmt(int *location, vector<Expr *> *target, Expr *value) : Decl(location, "AssignStmt") {
+    AssignStmt(int *location, vector<Expr *> *target, Expr *value) : Stmt(location, "AssignStmt") {
         this->targets = target;
         this->value = value;
     }
@@ -991,13 +991,13 @@ public:
 };
 
 /** Indefinite repetition construct. */
-class PassStmt : public Stmt {
+class PassStmt : public Stmt, public Decl {
 public:
     /** The AST for
      *      PASS
      *  spanning source locations [LEFT..RIGHT].
      */
-    explicit PassStmt(int *location) : Stmt(location, "PassStmt") {}
+    explicit PassStmt(int *location) : Stmt(location, "PassStmt"), Decl(location,"PassStmt") {}
     void accept(ast::Visitor &visitor) override;
 };
 
