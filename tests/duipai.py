@@ -9,7 +9,7 @@ import traceback
 import tempfile
 from typing import Callable, List, Tuple
 
-pas: str = "/Users/yiweiyang/project/chocopy_test/"
+pas: str = "../tests/"
 
 
 def check_exist(ref_json: json, error_json: json, col: str) -> bool:
@@ -237,7 +237,10 @@ def check_once(pa_index: int):
 
     pa_roots: List[str] = ['/sample', '/student', '/fuzz']
     for i, pa_root in enumerate(pa_roots):
-        pa_root = os.path.join(pas + f'pa{pa_index}' + pa_root)
+        try:
+            pa_root = os.path.join(pas + f'pa{pa_index}' + pa_root)
+        except:
+            break
         files: list = [
             f
             for f in os.listdir(pa_root)
