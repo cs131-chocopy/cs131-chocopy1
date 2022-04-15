@@ -511,7 +511,7 @@ cJSON *MethodCallExpr::toJSON() {
     cJSON_AddItemToObject(d, "method", this->method->toJSON());
 
     /* d["args"] = [a.toJSON() for a in self.args] */
-    cJSON *args_ = cJSON_CreateObject();
+    cJSON *args_ = cJSON_CreateArray();
     cJSON_AddItemToObject(d, "args", args_);
     if (has_args)
         for (auto &arg : *this->args)
