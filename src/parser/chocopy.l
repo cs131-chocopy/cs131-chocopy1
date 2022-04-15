@@ -194,6 +194,8 @@ int LineNum = 1;
 
 ^[\t ]+ { }
 
+(\r|(\r?\n)) { ANOTHER_LINE }
+
 <<EOF>> {
   if (stack_indent.top() != 0) {
     stack_indent.pop();
