@@ -24,12 +24,13 @@ def check_exist(ref_json: json, error_json: json, col: str) -> bool:
 
 
 def hash_list_to_string(hash_list) -> str:
-    return str(hash_list["location"])+str(hash_list["kind"])
+    return str(hash_list["location"]) + str(hash_list["kind"])
 
 
 def check_location(ref_loc: List[int], out_loc: List[int]):
-    # if abs(ref_loc[0] - out_loc[0]) < 10 and abs(ref_loc[1] - out_loc[1]) < 10 and abs(ref_loc[2] - out_loc[2]) < 10 and abs(ref_loc[3] - out_loc[3]) < 10:
-    #     return True
+    if abs(ref_loc[0] - out_loc[0]) < 10 and abs(ref_loc[1] - out_loc[1]) < 10 and abs(
+            ref_loc[2] - out_loc[2]) < 10 and abs(ref_loc[3] - out_loc[3]) < 10:
+        return True
     return True
 
 
@@ -39,7 +40,8 @@ def check_good(ref, out_json):
         cur_item = cur_item[i]
     for item in ref:
         if isinstance(ref[item], list):
-            if any(isinstance(j, int) for j in ref[item]) and check_location(ref[item], cur_item[item]) or len(ref[item]) == 0:
+            if any(isinstance(j, int) for j in ref[item]) and check_location(ref[item], cur_item[item]) or len(
+                    ref[item]) == 0:
                 pass
             else:
                 cur_depth.append(item)
@@ -82,7 +84,9 @@ def dfs(visited, ref_json, out_json, node):
                 # check everything except location
                 for item in neighbor:
                     if isinstance(neighbor[item], list):
-                        if any(isinstance(j, int) for j in neighbor[item]) and check_location(neighbor[item], cur_item[item]) or len(neighbor[item]) == 0:
+                        if any(isinstance(j, int) for j in neighbor[item]) and check_location(neighbor[item],
+                                                                                              cur_item[item]) or len(
+                                neighbor[item]) == 0:
                             pass
                         else:
                             cur_depth.append(item)
@@ -118,7 +122,10 @@ def dfs(visited, ref_json, out_json, node):
                     # check everything except location
                     for item in neighbor:
                         if isinstance(neighbor[item], list):
-                            if any(isinstance(j, int) for j in neighbor[item]) and check_location(neighbor[item], cur_item[item]) or len(neighbor[item]) == 0:
+                            if any(isinstance(j, int) for j in neighbor[item]) and check_location(neighbor[item],
+                                                                                                  cur_item[
+                                                                                                      item]) or len(
+                                    neighbor[item]) == 0:
                                 pass
                             else:
                                 for i1, j1 in enumerate(neighbor[item]):
@@ -147,7 +154,10 @@ def dfs(visited, ref_json, out_json, node):
                     # check everything except location
                     for item in neighbor:
                         if isinstance(neighbor[item], list):
-                            if any(isinstance(j, int) for j in neighbor[item]) and check_location(neighbor[item], cur_item[item]) or len(neighbor[item]) == 0:
+                            if any(isinstance(j, int) for j in neighbor[item]) and check_location(neighbor[item],
+                                                                                                  cur_item[
+                                                                                                      item]) or len(
+                                    neighbor[item]) == 0:
                                 pass
                             else:
                                 cur_depth.append(item)
@@ -173,7 +183,10 @@ def dfs(visited, ref_json, out_json, node):
                     # check everything except location
                     for item in neighbor:
                         if isinstance(neighbor[item], list):
-                            if any(isinstance(j, int) for j in neighbor[item]) and check_location(neighbor[item], cur_item[item]) or len(neighbor[item]) == 0:
+                            if any(isinstance(j, int) for j in neighbor[item]) and check_location(neighbor[item],
+                                                                                                  cur_item[
+                                                                                                      item]) or len(
+                                    neighbor[item]) == 0:
                                 pass
                             else:
                                 cur_depth.append(item)
@@ -195,6 +208,12 @@ def dfs(visited, ref_json, out_json, node):
 
 
 def check_stage(ref: str, out: str) -> bool:
+    global visited
+    global cur_depth
+    visited = set()
+    cur_depth = []
+    ref = ref.replace(' ', '')
+    out = ref.replace(' ', '')
     ref_json = json.loads(ref)
     out_json = json.loads(out)
     if check_exist(ref_json, out_json,
@@ -204,12 +223,11 @@ def check_stage(ref: str, out: str) -> bool:
         if dfs(visited, ref_json, out_json, ref_json["statements"][0]):
             return True
     except:
-     try:
-        if dfs(visited, ref_json, out_json, ref_json["declarations"][0]):
-            return True
-     except:
-        print("fall back to naive check")
-        return check_stage_naive(ref,out)
+        try:
+            if dfs(visited, ref_json, out_json, ref_json["declarations"][0]):
+                return True
+        except:
+            return check_stage_naive(ref, out)
     return False
 
 
@@ -239,12 +257,13 @@ def check_once(pa_index: int):
     success_count: list = [0, 0, 0]
     test_results: list = []
 
-    pa_roots: List[str] = ['/sample', '/student', '/fuzz']
+    pa_roots: List[str] = ['/sample', '/fuzz', '/student']
     for i, pa_root in enumerate(pa_roots):
         try:
             pa_root = os.path.join(pas + f'pa{pa_index}' + pa_root)
         except:
             break
+
         files: list = [
             f
             for f in os.listdir(pa_root)
@@ -254,7 +273,7 @@ def check_once(pa_index: int):
             1: lambda file_name: '.ast' not in file_name,
             2: lambda file_name: '.out' not in file_name,
             3: lambda
-            file_name: '.typed' not in file_name and '.in' not in file_name and '.s' not in file_name and '.ll' not in file_name and '.py' in file_name,
+                file_name: '.typed' not in file_name and '.in' not in file_name and '.s' not in file_name and '.ll' not in file_name and '.py' in file_name,
             4: lambda file_name: '.typed' not in file_name and '.in' not in file_name and '.s' not in file_name,
         }[pa_index]
         test_cases: list = [
@@ -272,9 +291,9 @@ def check_once(pa_index: int):
             }[pa_index]
             reference_output: str
             if pa_index == 1 or pa_index == 2:
-                reference_output_path_out: str = reference_output_path+".bak"
+                reference_output_path_out: str = reference_output_path + ".bak"
                 print(" ".join(["../build/cjson_formatter",
-                      reference_output_path, ">", reference_output_path_out]))
+                                reference_output_path, ">", reference_output_path_out]))
                 os.system(
                     " ".join(["../build/cjson_formatter", reference_output_path, ">", reference_output_path_out]))
                 reference_output = readfile(reference_output_path_out).strip()
@@ -299,8 +318,6 @@ def check_once(pa_index: int):
                 result = subprocess.run(cmd, stdout=subprocess.PIPE, input=ip)
                 program_output = result.stdout.decode('utf-8')
             else:
-                # print(" ".join(program_path.split(" ") +
-                #       [os.path.join(pa_root, case)]))
                 program_output = subprocess.run(
                     program_path.split(" ") + [os.path.join(pa_root, case)],
                     capture_output=True).stdout.decode('utf-8').replace(" ", "").replace("bblloader", "").strip()
@@ -345,7 +362,7 @@ def check_once(pa_index: int):
             finally:
                 test_results.append(f'end({case})\n')
         print(
-            f'{count[i]} tests, {success_count[i]} success, {count[i] - success_count[i]} failed in '+pa_root)
+            f'{count[i]} tests, {success_count[i]} success, {count[i] - success_count[i]} failed in ' + pa_root)
     for i in test_results:
         print(i)
     return sum(success_count)
