@@ -5,8 +5,6 @@
 #include <iostream>
 
 int main(int argc, char *argv[]) {
-    std::cout << fmt::to_string(10.) << std::endl;
-    std::cout << fmt::format("{}", 10.) << std::endl;
     std::filesystem::path path = argv[1];
     std::ifstream f(path, std::ios::in | std::ios::binary);
     const auto sz = std::filesystem::file_size(path);
