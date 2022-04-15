@@ -327,7 +327,7 @@ expr : expr_no_if { $$ = $1; }
     | expr_no_if TOKEN_IF expr TOKEN_ELSE expr { $$ = new parser::IfExpr(reuse_location($2, $1, $5), $3, $1, $5); delete[] $4; }
 
 expr_no_if : cexpr { $$ = $1; }
-    | TOKEN_NOT expr_no_if { $$ = new parser::UnaryExpr(set_backlocation($1, $2), std::string("-"), $2); }
+    | TOKEN_NOT expr_no_if { $$ = new parser::UnaryExpr(set_backlocation($1, $2), std::string("not"), $2); }
     | expr_no_if TOKEN_AND expr_no_if { $$ = new parser::BinaryExpr(reuse_location($2, $1, $3), $1, string("and"), $3); }
     | expr_no_if TOKEN_OR expr_no_if { $$ = new parser::BinaryExpr(reuse_location($2, $1, $3), $1, string("or"), $3); }
 
