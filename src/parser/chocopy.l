@@ -206,7 +206,7 @@ int LineNum = 1;
   return 0;
 }
 
-<CODE>(\"([ -\[\]-~]|(\\(n|t|\\|\")))*\") {
+<CODE>(\"([ -!#-\[\]-~]|(\\(n|t|\\|\")))*\") {
   // yylval.raw_str = strdup(yytext);
   yylval.raw_str = new char[yyleng+1];
   int len = 0;
