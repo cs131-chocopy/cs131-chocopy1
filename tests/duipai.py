@@ -204,8 +204,12 @@ def check_stage(ref: str, out: str) -> bool:
         if dfs(visited, ref_json, out_json, ref_json["statements"][0]):
             return True
     except:
+     try:
         if dfs(visited, ref_json, out_json, ref_json["declarations"][0]):
             return True
+     except:
+        print("fall back to naive check")
+        return check_stage_naive(ref,out)
     return False
 
 
@@ -340,8 +344,6 @@ def check_once(pa_index: int):
                 break
             finally:
                 test_results.append(f'end({case})\n')
-            if count[i] - success_count[i]>0:
-                break
         print(
             f'{count[i]} tests, {success_count[i]} success, {count[i] - success_count[i]} failed in '+pa_root)
     for i in test_results:
