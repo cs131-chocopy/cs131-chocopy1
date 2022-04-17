@@ -438,7 +438,9 @@ cJSON *IfStmt::toJSON() {
                 cJSON_AddItemToArray(else_body, i->toJSON());
         }
     } else if (this->el == cond::THEN_ELIF) {
-        cJSON_AddItemToObject(d, "elseBody", this->elifBody->toJSON());
+        cJSON *else_body = cJSON_CreateArray();
+        cJSON_AddItemToObject(d, "elseBody", else_body);
+        cJSON_AddItemToArray(else_body, this->elifBody->toJSON());
     }
 
     return d;
