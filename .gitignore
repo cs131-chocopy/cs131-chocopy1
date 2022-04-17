@@ -21,3 +21,5 @@ Pipfile
 Pipfile.lock
 chocopy_stdlib.cpp
 .cache/
+*.bak
+*.tmp
