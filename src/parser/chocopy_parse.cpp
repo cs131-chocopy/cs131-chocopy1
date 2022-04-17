@@ -388,6 +388,28 @@ cJSON *IfStmt::toJSON() {
         cJSON_AddItemToObject(d, "condition", this->condition->toJSON());
     cJSON *then_body = cJSON_CreateArray();
     cJSON_AddItemToObject(d, "thenBody", then_body);
+     for (auto &i : *this->thenBody) {
+        if (i->kind == "ExprStmt")
+            cJSON_AddItemToArray(then_body, ((ExprStmt *)i)->toJSON());
+        else if (i->kind == "IndexAssignStmt")
+            cJSON_AddItemToArray(then_body, ((IndexAssignStmt *)i)->toJSON());
+        else if (i->kind == "MemberAssignStmt")
+            cJSON_AddItemToArray(then_body, ((MemberAssignStmt *)i)->toJSON());
+        else if (i->kind == "VarAssignStmt")
+            cJSON_AddItemToArray(then_body, ((VarAssignStmt *)i)->toJSON());
+        else if (i->kind == "WhileStmt")
+            cJSON_AddItemToArray(then_body, ((WhileStmt *)i)->toJSON());
+        else if (i->kind == "ReturnStmt")
+            cJSON_AddItemToArray(then_body, ((ReturnStmt *)i)->toJSON());
+        else if (i->kind == "IfStmt")
+            cJSON_AddItemToArray(then_body, ((IfStmt *)i)->toJSON());
+        else if (i->kind == "ForStmt")
+            cJSON_AddItemToArray(then_body, ((ForStmt *)i)->toJSON());
+        else if (i->kind == "AssignStmt")
+            cJSON_AddItemToArray(then_body, ((AssignStmt *)i)->toJSON());
+        else
+            cJSON_AddItemToArray(then_body, i->toJSON());
+    }
 
     /* d["elseBody"] = [s.toJSON() for s in self.elseBody] */
     if (this->el == cond::THEN_ELSE) {
@@ -489,7 +511,7 @@ cJSON *MethodCallExpr::toJSON() {
     cJSON_AddItemToObject(d, "method", this->method->toJSON());
 
     /* d["args"] = [a.toJSON() for a in self.args] */
-    cJSON *args_ = cJSON_CreateObject();
+    cJSON *args_ = cJSON_CreateArray();
     cJSON_AddItemToObject(d, "args", args_);
     if (has_args)
         for (auto &arg : *this->args)

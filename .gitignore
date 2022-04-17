@@ -22,3 +22,5 @@ Pipfile.lock
 chocopy_stdlib.cpp
 .cache/
 src/parser/samples/
+*.bak
+*.tmp

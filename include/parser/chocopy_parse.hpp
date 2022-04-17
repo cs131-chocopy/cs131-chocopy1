@@ -991,13 +991,13 @@ public:
 };
 
 /** Indefinite repetition construct. */
-class PassStmt : public Stmt {
+class PassStmt : public Stmt, public Decl {
 public:
     /** The AST for
      *      PASS
      *  spanning source locations [LEFT..RIGHT].
      */
-    explicit PassStmt(int *location) : Stmt(location, "PassStmt") {}
+    explicit PassStmt(int *location) : Stmt(location, "PassStmt"), Decl(location,"PassStmt") {}
     void accept(ast::Visitor &visitor) override;
 };
 
