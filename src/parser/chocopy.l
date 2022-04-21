@@ -125,6 +125,12 @@ int LineNum = 1;
   LOG(DEBUG) << "INTEGER" << /*" " <<  yytext <<*/ " location: "<< yylloc.first_line<<" " << yylloc.first_column<< " " << (e1 = yylloc.last_line) <<" " << (e2 = yylloc.last_column);
   return TOKEN_INTEGER;
 }
+
+<CODE>(assert)|(async)|(await)|(continue)|(del)|(except)|(finally)|(from)|(import)|(lambda)|(raise)|(try)|(with)|(yield) {
+  LOG(ERROR) << "Error: reversed token on line " << yylineno << ": " << yytext;
+  return ERROR;
+}
+
 <CODE>[a-zA-Z_][a-zA-Z_0-9]* {
   yylval.raw_str = strdup(yytext);
   SET_ACTION
