@@ -120,7 +120,16 @@ int LineNum = 1;
 <CODE>"->" { SET_LOCATION SET_ACTION LITERAL(rarrow) }
 
 <CODE>[0-9]+ {
+  if (strlen(yytext) > 10) {
+    return ERROR;
+  }
+  if (strlen(yytext) == 10 && !(yytext[0] <= '2')) {
+    return ERROR;
+  }
   yylval.raw_int = atoi(yytext);
+  if (!(0 <= yylval.raw_int && yylval.raw_int <= 2147483647)) {
+    return ERROR;
+  }
   SET_ACTION
   LOG(DEBUG) << "INTEGER" << /*" " <<  yytext <<*/ " location: "<< yylloc.first_line<<" " << yylloc.first_column<< " " << (e1 = yylloc.last_line) <<" " << (e2 = yylloc.last_column);
   return TOKEN_INTEGER;
