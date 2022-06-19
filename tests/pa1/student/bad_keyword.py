@@ -1,0 +1,1 @@
+lambda: int = 3
